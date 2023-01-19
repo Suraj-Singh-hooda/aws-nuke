@@ -3,7 +3,6 @@ package resources
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -63,7 +62,7 @@ func ListIAMRolePolicies(sess *session.Session) ([]Resource, error) {
 					})
 				}
 
-				if !*policies.IsTruncated {
+				if *policies.IsTruncated == false {
 					break
 				}
 
@@ -71,7 +70,7 @@ func ListIAMRolePolicies(sess *session.Session) ([]Resource, error) {
 			}
 		}
 
-		if !*roles.IsTruncated {
+		if *roles.IsTruncated == false {
 			break
 		}
 
@@ -102,13 +101,11 @@ func (e *IAMRolePolicy) Remove() error {
 }
 
 func (e *IAMRolePolicy) Properties() types.Properties {
-	properties := types.NewProperties().
-		Set("PolicyName", e.policyName).
-		Set("role:RoleName", e.role.RoleName).
-		Set("role:RoleID", e.role.RoleId).
-		Set("role:Path", e.role.Path).
-		Set("role:LastUsed", getLastUsedDate(&e.role, time.RFC3339)).
-		Set("role:CreateDate", e.role.CreateDate.Format(time.RFC3339))
+	properties := types.NewProperties()
+	properties.Set("PolicyName", e.policyName)
+	properties.Set("role:RoleName", e.role.RoleName)
+	properties.Set("role:RoleID", e.role.RoleId)
+	properties.Set("role:Path", e.role.Path)
 
 	for _, tagValue := range e.role.Tags {
 		properties.SetTagWithPrefix("role", tagValue.Key, tagValue.Value)

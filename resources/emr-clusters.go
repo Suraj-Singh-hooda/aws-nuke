@@ -3,17 +3,15 @@ package resources
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/emr"
-	"github.com/rebuy-de/aws-nuke/v2/pkg/types"
 )
 
 type EMRCluster struct {
-	svc     *emr.EMR
-	cluster *emr.ClusterSummary
-	state   *string
+	svc   *emr.EMR
+	ID    *string
+	state *string
 }
 
 func init() {
@@ -34,9 +32,9 @@ func ListEMRClusters(sess *session.Session) ([]Resource, error) {
 
 		for _, cluster := range resp.Clusters {
 			resources = append(resources, &EMRCluster{
-				svc:     svc,
-				cluster: cluster,
-				state:   cluster.Status.State,
+				svc:   svc,
+				ID:    cluster.Id,
+				state: cluster.Status.State,
 			})
 		}
 
@@ -50,17 +48,11 @@ func ListEMRClusters(sess *session.Session) ([]Resource, error) {
 	return resources, nil
 }
 
-func (f *EMRCluster) Properties() types.Properties {
-	properties := types.NewProperties().
-		Set("CreatedTime", f.cluster.Status.Timeline.CreationDateTime.Format(time.RFC3339))
-	return properties
-}
-
 func (f *EMRCluster) Remove() error {
 
 	//Call names are inconsistent in the SDK
 	_, err := f.svc.TerminateJobFlows(&emr.TerminateJobFlowsInput{
-		JobFlowIds: []*string{f.cluster.Id},
+		JobFlowIds: []*string{f.ID},
 	})
 	// Force nil return due to async callbacks blocking
 	if err == nil {
@@ -71,7 +63,7 @@ func (f *EMRCluster) Remove() error {
 }
 
 func (f *EMRCluster) String() string {
-	return *f.cluster.Id
+	return *f.ID
 }
 
 func (f *EMRCluster) Filter() error {

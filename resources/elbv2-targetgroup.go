@@ -8,7 +8,8 @@ import (
 
 type ELBv2TargetGroup struct {
 	svc  *elbv2.ELBV2
-	tg   *elbv2.TargetGroup
+	name *string
+	arn  *string
 	tags []*elbv2.Tag
 }
 
@@ -19,13 +20,13 @@ func init() {
 func ListELBv2TargetGroups(sess *session.Session) ([]Resource, error) {
 	svc := elbv2.New(sess)
 	var tagReqELBv2TargetGroupARNs []*string
-	targetGroupARNToRsc := make(map[string]*elbv2.TargetGroup)
+	targetGroupArnToName := make(map[string]*string)
 
 	err := svc.DescribeTargetGroupsPages(nil,
 		func(page *elbv2.DescribeTargetGroupsOutput, lastPage bool) bool {
 			for _, targetGroup := range page.TargetGroups {
 				tagReqELBv2TargetGroupARNs = append(tagReqELBv2TargetGroupARNs, targetGroup.TargetGroupArn)
-				targetGroupARNToRsc[*targetGroup.TargetGroupArn] = targetGroup
+				targetGroupArnToName[*targetGroup.TargetGroupArn] = targetGroup.TargetGroupName
 			}
 			return !lastPage
 		})
@@ -52,7 +53,8 @@ func ListELBv2TargetGroups(sess *session.Session) ([]Resource, error) {
 		for _, tagInfo := range tagResp.TagDescriptions {
 			resources = append(resources, &ELBv2TargetGroup{
 				svc:  svc,
-				tg:   targetGroupARNToRsc[*tagInfo.ResourceArn],
+				name: targetGroupArnToName[*tagInfo.ResourceArn],
+				arn:  tagInfo.ResourceArn,
 				tags: tagInfo.Tags,
 			})
 		}
@@ -65,7 +67,7 @@ func ListELBv2TargetGroups(sess *session.Session) ([]Resource, error) {
 
 func (e *ELBv2TargetGroup) Remove() error {
 	_, err := e.svc.DeleteTargetGroup(&elbv2.DeleteTargetGroupInput{
-		TargetGroupArn: e.tg.TargetGroupArn,
+		TargetGroupArn: e.arn,
 	})
 
 	if err != nil {
@@ -80,10 +82,9 @@ func (e *ELBv2TargetGroup) Properties() types.Properties {
 	for _, tagValue := range e.tags {
 		properties.SetTag(tagValue.Key, tagValue.Value)
 	}
-	properties.Set("IsLoadBalanced", len(e.tg.LoadBalancerArns) > 0)
 	return properties
 }
 
 func (e *ELBv2TargetGroup) String() string {
-	return *e.tg.TargetGroupName
+	return *e.name
 }

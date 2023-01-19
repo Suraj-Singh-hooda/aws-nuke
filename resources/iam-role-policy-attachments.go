@@ -3,7 +3,6 @@ package resources
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -15,7 +14,8 @@ type IAMRolePolicyAttachment struct {
 	svc        *iam.IAM
 	policyArn  string
 	policyName string
-	role       *iam.Role
+	roleName   string
+	roleTags   []*iam.Tag
 }
 
 func init() {
@@ -56,11 +56,12 @@ func ListIAMRolePolicyAttachments(sess *session.Session) ([]Resource, error) {
 						svc:        svc,
 						policyArn:  *pol.PolicyArn,
 						policyName: *pol.PolicyName,
-						role:       role,
+						roleName:   *role.RoleName,
+						roleTags:   role.Tags,
 					})
 				}
 
-				if !*polResp.IsTruncated {
+				if *polResp.IsTruncated == false {
 					break
 				}
 
@@ -68,7 +69,7 @@ func ListIAMRolePolicyAttachments(sess *session.Session) ([]Resource, error) {
 			}
 		}
 
-		if !*roleResp.IsTruncated {
+		if *roleResp.IsTruncated == false {
 			break
 		}
 
@@ -89,7 +90,7 @@ func (e *IAMRolePolicyAttachment) Remove() error {
 	_, err := e.svc.DetachRolePolicy(
 		&iam.DetachRolePolicyInput{
 			PolicyArn: &e.policyArn,
-			RoleName:  e.role.RoleName,
+			RoleName:  &e.roleName,
 		})
 	if err != nil {
 		return err
@@ -100,19 +101,15 @@ func (e *IAMRolePolicyAttachment) Remove() error {
 
 func (e *IAMRolePolicyAttachment) Properties() types.Properties {
 	properties := types.NewProperties().
-		Set("RoleName", e.role.RoleName).
-		Set("RolePath", e.role.Path).
-		Set("RoleLastUsed", getLastUsedDate(e.role, time.RFC3339)).
-		Set("RoleCreateDate", e.role.CreateDate.Format(time.RFC3339)).
+		Set("RoleName", e.roleName).
 		Set("PolicyName", e.policyName).
 		Set("PolicyArn", e.policyArn)
-
-	for _, tag := range e.role.Tags {
+	for _, tag := range e.roleTags {
 		properties.SetTagWithPrefix("role", tag.Key, tag.Value)
 	}
 	return properties
 }
 
 func (e *IAMRolePolicyAttachment) String() string {
-	return fmt.Sprintf("%s -> %s", *e.role.RoleName, e.policyName)
+	return fmt.Sprintf("%s -> %s", e.roleName, e.policyName)
 }

@@ -2,7 +2,6 @@ package resources
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -12,7 +11,7 @@ import (
 
 type IAMInstanceProfileRole struct {
 	svc     *iam.IAM
-	role    *iam.Role
+	role    string
 	profile *iam.InstanceProfile
 }
 
@@ -44,13 +43,13 @@ func ListIAMInstanceProfileRoles(sess *session.Session) ([]Resource, error) {
 
 				resources = append(resources, &IAMInstanceProfileRole{
 					svc:     svc,
-					role:    outRole,
+					role:    *outRole.RoleName,
 					profile: profile,
 				})
 			}
 		}
 
-		if !*resp.IsTruncated {
+		if *resp.IsTruncated == false {
 			break
 		}
 
@@ -64,7 +63,7 @@ func (e *IAMInstanceProfileRole) Remove() error {
 	_, err := e.svc.RemoveRoleFromInstanceProfile(
 		&iam.RemoveRoleFromInstanceProfileInput{
 			InstanceProfileName: e.profile.InstanceProfileName,
-			RoleName:            e.role.RoleName,
+			RoleName:            &e.role,
 		})
 	if err != nil {
 		return err
@@ -86,13 +85,7 @@ func (e *IAMInstanceProfileRole) Properties() types.Properties {
 
 	properties.
 		Set("InstanceProfile", e.profile.InstanceProfileName).
-		Set("InstanceRole", e.role.RoleName).
-		Set("role:Path", e.role.Path).
-		Set("role:CreateDate", e.role.CreateDate.Format(time.RFC3339)).
-		Set("role:LastUsedDate", getLastUsedDate(e.role, time.RFC3339))
+		Set("InstanceRole", e.role)
 
-	for _, tagValue := range e.role.Tags {
-		properties.SetTagWithPrefix("role", tagValue.Key, tagValue.Value)
-	}
 	return properties
 }

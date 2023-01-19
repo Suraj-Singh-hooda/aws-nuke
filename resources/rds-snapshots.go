@@ -2,7 +2,6 @@ package resources
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -79,13 +78,12 @@ func (i *RDSSnapshot) String() string {
 }
 
 func (i *RDSSnapshot) Properties() types.Properties {
-	properties := types.NewProperties().
-		Set("ARN", i.snapshot.DBSnapshotArn).
-		Set("Identifier", i.snapshot.DBSnapshotIdentifier).
-		Set("SnapshotType", i.snapshot.SnapshotType).
-		Set("Status", i.snapshot.Status).
-		Set("AvailabilityZone", i.snapshot.AvailabilityZone).
-		Set("CreatedTime", i.snapshot.SnapshotCreateTime.Format(time.RFC3339))
+	properties := types.NewProperties()
+	properties.Set("ARN", i.snapshot.DBSnapshotArn)
+	properties.Set("Identifier", i.snapshot.DBSnapshotIdentifier)
+	properties.Set("SnapshotType", i.snapshot.SnapshotType)
+	properties.Set("Status", i.snapshot.Status)
+	properties.Set("AvailabilityZone", i.snapshot.AvailabilityZone)
 
 	for _, tag := range i.tags {
 		properties.SetTag(tag.Key, tag.Value)

@@ -4,12 +4,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/redshift"
-	"github.com/rebuy-de/aws-nuke/v2/pkg/types"
 )
 
 type RedshiftSnapshot struct {
-	svc      *redshift.Redshift
-	snapshot *redshift.Snapshot
+	svc                *redshift.Redshift
+	snapshotIdentifier *string
 }
 
 func init() {
@@ -32,8 +31,8 @@ func ListRedshiftSnapshots(sess *session.Session) ([]Resource, error) {
 
 		for _, snapshot := range output.Snapshots {
 			resources = append(resources, &RedshiftSnapshot{
-				svc:      svc,
-				snapshot: snapshot,
+				svc:                svc,
+				snapshotIdentifier: snapshot.SnapshotIdentifier,
 			})
 		}
 
@@ -47,26 +46,15 @@ func ListRedshiftSnapshots(sess *session.Session) ([]Resource, error) {
 	return resources, nil
 }
 
-func (f *RedshiftSnapshot) Properties() types.Properties {
-	properties := types.NewProperties().
-		Set("CreatedTime", f.snapshot.SnapshotCreateTime)
-
-	for _, tag := range f.snapshot.Tags {
-		properties.SetTag(tag.Key, tag.Value)
-	}
-
-	return properties
-}
-
 func (f *RedshiftSnapshot) Remove() error {
 
 	_, err := f.svc.DeleteClusterSnapshot(&redshift.DeleteClusterSnapshotInput{
-		SnapshotIdentifier: f.snapshot.SnapshotIdentifier,
+		SnapshotIdentifier: f.snapshotIdentifier,
 	})
 
 	return err
 }
 
 func (f *RedshiftSnapshot) String() string {
-	return *f.snapshot.SnapshotIdentifier
+	return *f.snapshotIdentifier
 }

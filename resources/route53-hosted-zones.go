@@ -16,25 +16,14 @@ func init() {
 func ListRoute53HostedZones(sess *session.Session) ([]Resource, error) {
 	svc := route53.New(sess)
 
-	var hostedZones []*route53.HostedZone
 	params := &route53.ListHostedZonesInput{}
-
-	for {
-		resp, err := svc.ListHostedZones(params)
-		if err != nil {
-			return nil, err
-		}
-
-		hostedZones = append(hostedZones, resp.HostedZones...)
-
-		params.Marker = resp.NextMarker
-		if aws.StringValue(params.Marker) == "" {
-			break
-		}
+	resp, err := svc.ListHostedZones(params)
+	if err != nil {
+		return nil, err
 	}
 
 	resources := make([]Resource, 0)
-	for _, hz := range hostedZones {
+	for _, hz := range resp.HostedZones {
 		tags, err := svc.ListTagsForResource(&route53.ListTagsForResourceInput{
 			ResourceId:   hz.Id,
 			ResourceType: aws.String("hostedzone"),
