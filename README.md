@@ -1,9 +1,9 @@
 # aws-nuke
 
-![Build Status](https://github.com/rebuy-de/aws-nuke/workflows/Golang%20CI/badge.svg?branch=main)
-[![license](https://img.shields.io/github/license/rebuy-de/aws-nuke.svg)](https://github.com/rebuy-de/aws-nuke/blob/main/LICENSE)
+[![Build Status](https://travis-ci.org/rebuy-de/aws-nuke.svg?branch=master)](https://travis-ci.org/rebuy-de/aws-nuke)
+[![license](https://img.shields.io/github/license/rebuy-de/aws-nuke.svg)](https://github.com/rebuy-de/aws-nuke/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/rebuy-de/aws-nuke.svg)](https://github.com/rebuy-de/aws-nuke/releases)
-[![Docker Hub](https://img.shields.io/docker/pulls/rebuy/aws-nuke)](https://hub.docker.com/r/rebuy/aws-nuke)
+[![Docker Repository on Quay](https://quay.io/repository/rebuy/aws-nuke/status "Docker Repository on Quay")](https://quay.io/repository/rebuy/aws-nuke)
 
 Remove all resources from an AWS account.
 
@@ -33,16 +33,16 @@ To reduce the blast radius of accidents, there are some safety precautions:
 4. The Account Alias must not contain the string `prod`. This string is
    hardcoded and it is recommended to add it to every actual production account
    (eg `mycompany-production-ecr`).
-5. The config file contains a blocklist field. If the Account ID of the account
-   you want to nuke is part of this blocklist, *aws-nuke* will abort. It is
-   recommended, that you add every production account to this blocklist.
-6. To ensure you don't just ignore the blocklisting feature, the blocklist must
+5. The config file contains a blacklist field. If the Account ID of the account
+   you want to nuke is part of this blacklist, *aws-nuke* will abort. It is
+   recommended, that you add every production account to this blacklist.
+6. To ensure you don't just ignore the blacklisting feature, the blacklist must
    contain at least one Account ID.
 7. The config file contains account specific settings (eg. filters). The
    account you want to nuke must be explicitly listed there.
 8. To ensure to not accidentally delete a random account, it is required to
    specify a config file. It is recommended to have only a single config file
-   and add it to a central repository. This way the account blocklist is way
+   and add it to a central repository. This way the account blacklist is way
    easier to manage and keep up to date.
 
 Feel free to create an issue, if you have any ideas to improve the safety
@@ -65,11 +65,10 @@ procedures.
 We usually release a new version once enough changes came together and have
 been tested for a while.
 
-You can find Linux, macOS and Windows binaries on the
+You can find Linux and macOS binaries on the
 [releases page](https://github.com/rebuy-de/aws-nuke/releases), but we also
 provide containerized versions on [quay.io/rebuy/aws-nuke](https://quay.io/rebuy/aws-nuke)
-and [docker.io/rebuy/aws-nuke](https://hub.docker.com/r/rebuy/aws-nuke). Both
-are available for multiple architectures (amd64, arm64 & armv7).
+and [docker.io/rebuy/aws-nuke](https://hub.docker.com/r/rebuy/aws-nuke) (mirror).
 
 
 ## Usage
@@ -81,7 +80,7 @@ regions:
 - eu-west-1
 - global
 
-account-blocklist:
+account-blacklist:
 - "999999999999" # production
 
 accounts:
@@ -126,7 +125,7 @@ our account. Therefore we have to extend the config so it ignores this user:
 regions:
 - eu-west-1
 
-account-blocklist:
+account-blacklist:
 - "999999999999" # production
 
 accounts:
@@ -259,7 +258,7 @@ endpoints:
   - service: acm
     url: https://10.16.145.115/api/v2/aws/acm
 
-account-blocklist:
+account-blacklist:
 - "account-id-of-custom-region-prod" # production
 
 accounts:
@@ -320,7 +319,7 @@ these examples:
 ---
 regions:
   - "eu-west-1"
-account-blocklist:
+account-blacklist:
 - 1234567890
 
 resource-types:
@@ -338,7 +337,7 @@ accounts:
 ---
 regions:
   - "eu-west-1"
-account-blocklist:
+account-blacklist:
 - 1234567890
 
 resource-types:
@@ -362,51 +361,6 @@ If an exclude is used, then all its resource types will not be deleted.
 aws-nuke resource-types
 ```
 
-### AWS Cloud Control API Support
-
-> This feature is not yet released and is probably part of `v2.18`.
-
-_aws-nuke_ supports removing resources via the AWS Cloud Control API. When
-executing _aws-nuke_ it will automatically remove a manually managed set of
-resources via Cloud Control.
-
-Only a subset of Cloud Control supported resources will be removed
-automatically, because there might be resources that were already implemented
-and adding them too would bypass existing filters in user configs as Cloud
-Control has another naming scheme and a different set of properties. Moreover,
-there are some Cloud Control resources that need special handling which is not
-yet supported by _aws-nuke_.
-
-Even though the subset of automatically supported Cloud Control resources is
-limited, you can can configure _aws-nuke_ to make it try any additional
-resource. Either via command line flags of via the config file.
-
-For the config file you have to add the resource to
-the`resource-types.cloud-control` list:
-
-```yaml
-resource-types:
-  cloud-control:
-  - AWS::EC2::TransitGateway
-  - AWS::EC2::VPC
-```
-
-If you want to use the command line, you have to add a `--cloud-control` flag
-for each resource you want to add:
-
-```sh
-aws-nuke \
-    -c nuke-config.yaml \
-    --cloud-control AWS::EC2::TransitGateway \
-    --cloud-control AWS::EC2::VPC
-```
-
-**Note:** There are some resources that are supported by Cloud Control and are
-already natively implemented by _aws-nuke_. If you configure to use Cloud
-Control for those resources, it will not execute the natively implemented code
-for this resource. For example with the `--cloud-control AWS::EC2::VPC` it will
-not use the `EC2VPC` resource.
-
 
 ### Feature Flags
 
@@ -419,9 +373,6 @@ configured on the root-level of the config, like this:
 feature-flags:
   disable-deletion-protection:
     RDSInstance: true
-    EC2Instance: true
-    CloudformationStack: true
-  force-delete-lightsail-addons: true
 ```
 
 
@@ -449,7 +400,7 @@ regions:
 - global
 - eu-west-1
 
-account-blocklist:
+account-blacklist:
 - 1234567890
 
 accounts:
@@ -505,9 +456,9 @@ There are also additional comparision types than an exact match:
   Details about the syntax can be found in the [library
   documentation](https://golang.org/pkg/regexp/syntax/).
 * `dateOlderThan` - The identifier is parsed as a timestamp. After the offset is added to it (specified in the `value` field), the resulting timestamp must be AFTER the current
-  time. Details on offset syntax can be found in
+  time. Details on offset syntax can be found in 
   the [library documentation](https://golang.org/pkg/time/#ParseDuration). Supported
-  date formats are epoch time, `2006-01-02`, `2006/01/02`, `2006-01-02T15:04:05Z`,
+  date formats are epoch time, `2006-01-02`, `2006/01/02`, `2006-01-02T15:04:05Z`, 
   `2006-01-02T15:04:05.999999999Z07:00`, and `2006-01-02T15:04:05Z07:00`.
 
 To use a non-default comparision type, it is required to specify an object with
@@ -565,7 +516,7 @@ regions:
 - "global"
 - "eu-west-1"
 
-account-blocklist:
+account-blacklist:
 - 1234567890
 
 accounts:
@@ -606,14 +557,6 @@ presets:
 The easiest way of installing it, is to download the latest
 [release](https://github.com/rebuy-de/aws-nuke/releases) from GitHub.
 
-#### Example for Linux Intel/AMD
-
-Download and extract
-`$ wget -c https://github.com/rebuy-de/aws-nuke/releases/download/v2.16.0/aws-nuke-v2.16.0-linux-amd64.tar.gz -O - | sudo tar -xz -C $HOME/bin`
-
-Run
-`$ aws-nuke-v2.16.0-linux-amd64`
-
 ### Compile from Source
 
 To compile *aws-nuke* from source you need a working
@@ -649,7 +592,7 @@ Also you need to specify the correct AWS profile. Instead of mounting the AWS
 directory, you can use the `--access-key-id` and `--secret-access-key` flags.
 
 Make sure you use the latest version in the image tag. Alternatiely you can use
-`main` for the latest development version, but be aware that this is more
+`master` for the latest development version, but be aware that this is more
 likely to break at any time.
 
 
