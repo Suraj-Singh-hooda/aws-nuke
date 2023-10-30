@@ -15,6 +15,8 @@ type ELBv2LoadBalancer struct {
 	svc          *elbv2.ELBV2
 	tags         []*elbv2.Tag
 	elb          *elbv2.LoadBalancer
+	name         *string
+	arn          *string
 	featureFlags config.FeatureFlags
 }
 
@@ -26,12 +28,13 @@ func ListELBv2LoadBalancers(sess *session.Session) ([]Resource, error) {
 	svc := elbv2.New(sess)
 	var tagReqELBv2ARNs []*string
 	elbv2ARNToRsc := make(map[string]*elbv2.LoadBalancer)
+	ELBv2ArnToName := make(map[string]*string)
 
 	err := svc.DescribeLoadBalancersPages(nil,
 		func(page *elbv2.DescribeLoadBalancersOutput, lastPage bool) bool {
 			for _, elbv2 := range page.LoadBalancers {
 				tagReqELBv2ARNs = append(tagReqELBv2ARNs, elbv2.LoadBalancerArn)
-				elbv2ARNToRsc[*elbv2.LoadBalancerArn] = elbv2
+				ELBv2ArnToName[*elbv2.LoadBalancerArn] = elbv2.LoadBalancerName
 			}
 			return !lastPage
 		})
@@ -85,7 +88,7 @@ func (e *ELBv2LoadBalancer) Remove() error {
 		if e.featureFlags.DisableDeletionProtection.ELBv2 {
 			awsErr, ok := err.(awserr.Error)
 			if ok && awsErr.Code() == "OperationNotPermitted" &&
-				awsErr.Message() == "Load balancer '"+*e.elb.LoadBalancerArn+"' cannot be deleted because deletion protection is enabled" {
+				awsErr.Message() == "Load balancer '"+*e.arn+"' cannot be deleted because deletion protection is enabled" {
 				err = e.DisableProtection()
 				if err != nil {
 					return err
@@ -104,7 +107,7 @@ func (e *ELBv2LoadBalancer) Remove() error {
 
 func (e *ELBv2LoadBalancer) DisableProtection() error {
 	params := &elbv2.ModifyLoadBalancerAttributesInput{
-		LoadBalancerArn: e.elb.LoadBalancerArn,
+		LoadBalancerArn: e.arn,
 		Attributes: []*elbv2.LoadBalancerAttribute{
 			{
 				Key:   aws.String("deletion_protection.enabled"),

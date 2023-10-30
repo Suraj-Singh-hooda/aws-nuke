@@ -19,13 +19,13 @@ func init() {
 func ListELBv2TargetGroups(sess *session.Session) ([]Resource, error) {
 	svc := elbv2.New(sess)
 	var tagReqELBv2TargetGroupARNs []*string
-	targetGroupARNToRsc := make(map[string]*elbv2.TargetGroup)
+	targetGroupArnToName := make(map[string]*string)
 
 	err := svc.DescribeTargetGroupsPages(nil,
 		func(page *elbv2.DescribeTargetGroupsOutput, lastPage bool) bool {
 			for _, targetGroup := range page.TargetGroups {
 				tagReqELBv2TargetGroupARNs = append(tagReqELBv2TargetGroupARNs, targetGroup.TargetGroupArn)
-				targetGroupARNToRsc[*targetGroup.TargetGroupArn] = targetGroup
+				targetGroupArnToName[*targetGroup.TargetGroupArn] = targetGroup.TargetGroupName
 			}
 			return !lastPage
 		})

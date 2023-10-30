@@ -91,16 +91,19 @@ func (e *IAMRole) Remove() error {
 }
 
 func (role *IAMRole) Properties() types.Properties {
-	properties := types.NewProperties().
-		Set("CreateDate", role.role.CreateDate.Format(time.RFC3339)).
-		Set("LastUsedDate", getLastUsedDate(role.role, time.RFC3339)).
-		Set("Name", role.name).
-		Set("Path", role.path)
-
+	properties := types.NewProperties()
 	for _, tagValue := range role.role.Tags {
 		properties.SetTag(tagValue.Key, tagValue.Value)
 	}
-
+	properties.Set("CreateDate", role.role.CreateDate.Format(time.RFC3339))
+	if role.role.RoleLastUsed.LastUsedDate == nil {
+		properties.Set("LastUsedDate", role.role.CreateDate.Format(time.RFC3339))
+	} else {
+		properties.Set("LastUsedDate", role.role.RoleLastUsed.LastUsedDate.Format(time.RFC3339))
+	}
+	properties.
+		Set("Name", role.name).
+		Set("Path", role.path)
 	return properties
 }
 

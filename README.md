@@ -3,7 +3,7 @@
 ![Build Status](https://github.com/rebuy-de/aws-nuke/workflows/Golang%20CI/badge.svg?branch=main)
 [![license](https://img.shields.io/github/license/rebuy-de/aws-nuke.svg)](https://github.com/rebuy-de/aws-nuke/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/rebuy-de/aws-nuke.svg)](https://github.com/rebuy-de/aws-nuke/releases)
-[![Docker Hub](https://img.shields.io/docker/pulls/rebuy/aws-nuke)](https://hub.docker.com/r/rebuy/aws-nuke)
+[![Docker Repository on Quay](https://quay.io/repository/rebuy/aws-nuke/status "Docker Repository on Quay")](https://quay.io/repository/rebuy/aws-nuke)
 
 Remove all resources from an AWS account.
 
@@ -65,11 +65,18 @@ procedures.
 We usually release a new version once enough changes came together and have
 been tested for a while.
 
+<<<<<<< HEAD
 You can find Linux, macOS and Windows binaries on the
 [releases page](https://github.com/rebuy-de/aws-nuke/releases), but we also
 provide containerized versions on [quay.io/rebuy/aws-nuke](https://quay.io/rebuy/aws-nuke)
 and [docker.io/rebuy/aws-nuke](https://hub.docker.com/r/rebuy/aws-nuke). Both
 are available for multiple architectures (amd64, arm64 & armv7).
+=======
+You can find Linux and macOS binaries on the
+[releases page](https://github.com/rebuy-de/aws-nuke/releases), but we also
+provide containerized versions on [quay.io/rebuy/aws-nuke](https://quay.io/rebuy/aws-nuke)
+and [docker.io/rebuy/aws-nuke](https://hub.docker.com/r/rebuy/aws-nuke) (mirror).
+>>>>>>> master
 
 
 ## Usage
@@ -505,9 +512,15 @@ There are also additional comparision types than an exact match:
   Details about the syntax can be found in the [library
   documentation](https://golang.org/pkg/regexp/syntax/).
 * `dateOlderThan` - The identifier is parsed as a timestamp. After the offset is added to it (specified in the `value` field), the resulting timestamp must be AFTER the current
+<<<<<<< HEAD
   time. Details on offset syntax can be found in
   the [library documentation](https://golang.org/pkg/time/#ParseDuration). Supported
   date formats are epoch time, `2006-01-02`, `2006/01/02`, `2006-01-02T15:04:05Z`,
+=======
+  time. Details on offset syntax can be found in 
+  the [library documentation](https://golang.org/pkg/time/#ParseDuration). Supported
+  date formats are epoch time, `2006-01-02`, `2006/01/02`, `2006-01-02T15:04:05Z`, 
+>>>>>>> master
   `2006-01-02T15:04:05.999999999Z07:00`, and `2006-01-02T15:04:05Z07:00`.
 
 To use a non-default comparision type, it is required to specify an object with

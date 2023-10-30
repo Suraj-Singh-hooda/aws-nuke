@@ -72,13 +72,8 @@ func (f *CloudWatchAlarm) Remove() error {
 }
 
 func (f *CloudWatchAlarm) Properties() types.Properties {
-	properties := types.NewProperties()
-	properties.Set("Name", f.alarmName)
-
-	for _, tag := range f.tags {
-		properties.SetTag(tag.Key, tag.Value)
-	}
-	return properties
+	return types.NewProperties().
+		Set("Name", f.alarmName)
 }
 
 func (f *CloudWatchAlarm) String() string {
