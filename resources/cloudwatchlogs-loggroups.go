@@ -12,6 +12,7 @@ import (
 
 type CloudWatchLogsLogGroup struct {
 	svc       *cloudwatchlogs.CloudWatchLogs
+	logGroupName *string
 	logGroup  *cloudwatchlogs.LogGroup
 	lastEvent string
 	tags      map[string]*string
