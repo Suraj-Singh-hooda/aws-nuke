@@ -11,11 +11,11 @@ import (
 )
 
 type CloudWatchLogsLogGroup struct {
-	svc       *cloudwatchlogs.CloudWatchLogs
+	svc          *cloudwatchlogs.CloudWatchLogs
 	logGroupName *string
-	logGroup  *cloudwatchlogs.LogGroup
-	lastEvent string
-	tags      map[string]*string
+	logGroup     *cloudwatchlogs.LogGroup
+	lastEvent    string
+	tags         map[string]*string
 }
 
 func init() {
