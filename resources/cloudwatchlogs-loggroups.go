@@ -105,13 +105,3 @@ func (f *CloudWatchLogsLogGroup) Properties() types.Properties {
 	}
 	return properties
 }
-
-func (f *CloudWatchLogsLogGroup) Properties() types.Properties {
-	properties := types.NewProperties()
-	for k, v := range f.tags {
-		properties.SetTag(&k, v)
-	}
-	properties.
-		Set("logGroupName", f.logGroupName)
-	return properties
-}
