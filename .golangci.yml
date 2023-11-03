@@ -1,0 +1,27 @@
+# Want more information on how this config file works?
+# https://golangci-lint.run/usage/configuration/
+run:
+    concurrency: 4
+    timeout: 5m
+
+output:
+  print-issued-lines: true
+  print-linter-name: true
+  unique-by-line: true
+  format: colored-line-number
+
+linters:
+    enable:
+        - gosec
+        - deadcode
+        - gosimple
+        - govet
+        - ineffassign
+        - staticcheck
+        - structcheck
+        - typecheck
+        - unused
+        - varcheck
+        - gocritic
+        - gocyclo
+        - errcheck
