@@ -14,6 +14,7 @@ type SessionFactory func(regionName, svcType string) (*session.Session, error)
 // ResourceTypeResolver returns the service type from the resourceType
 type ResourceTypeResolver func(regionName, resourceType string) string
 
+// Region struct
 type Region struct {
 	Name            string
 	NewSession      SessionFactory
@@ -23,6 +24,7 @@ type Region struct {
 	lock  *sync.RWMutex
 }
 
+// NewRegion function
 func NewRegion(name string, typeResolver ResourceTypeResolver, sessionFactory SessionFactory) *Region {
 	return &Region{
 		Name:            name,
@@ -33,6 +35,7 @@ func NewRegion(name string, typeResolver ResourceTypeResolver, sessionFactory Se
 	}
 }
 
+// Session function
 func (region *Region) Session(resourceType string) (*session.Session, error) {
 	svcType := region.ResTypeResolver(region.Name, resourceType)
 	if svcType == "" {

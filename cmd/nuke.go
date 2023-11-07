@@ -37,7 +37,7 @@ func (n *Nuke) Run() error {
 	var err error
 
 	if n.Parameters.ForceSleep < 3 && n.Parameters.NoDryRun {
-		return fmt.Errorf("Value for --force-sleep cannot be less than 3 seconds if --no-dry-run is set. This is for your own protection.")
+		return fmt.Errorf("value for --force-sleep cannot be less than 3 seconds if --no-dry-run is set. This is for your own protection")
 	}
 	forceSleep := time.Duration(n.Parameters.ForceSleep) * time.Second
 
@@ -118,7 +118,7 @@ func (n *Nuke) Run() error {
 		}
 		if n.Parameters.MaxWaitRetries != 0 && n.items.Count(ItemStateWaiting, ItemStatePending) > 0 && n.items.Count(ItemStateNew) == 0 {
 			if waitingCount >= n.Parameters.MaxWaitRetries {
-				return fmt.Errorf("Max wait retries of %d exceeded.\n\n", n.Parameters.MaxWaitRetries)
+				return fmt.Errorf("max wait retries of %d exceeded.\n\n", n.Parameters.MaxWaitRetries)
 			}
 			waitingCount = waitingCount + 1
 		} else {

@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewRootCommand function
 func NewRootCommand() *cobra.Command {
 	var (
 		params        NukeParameters
@@ -71,7 +72,7 @@ func NewRootCommand() *cobra.Command {
 				awsutil.DefaultAWSPartitionID = endpoints.AwsUsGovPartitionID
 			default:
 				if config.CustomEndpoints.GetRegion(defaultRegion) == nil {
-					err = fmt.Errorf("The custom region '%s' must be specified in the configuration 'endpoints'", defaultRegion)
+					err = fmt.Errorf("the custom region '%s' must be specified in the configuration 'endpoints'", defaultRegion)
 					log.Error(err.Error())
 					return err
 				}
@@ -166,6 +167,7 @@ func NewRootCommand() *cobra.Command {
 	return command
 }
 
+// NewResourceTypesCommand function
 func NewResourceTypesCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "resource-types",

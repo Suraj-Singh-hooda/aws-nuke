@@ -6,6 +6,7 @@ import (
 	"github.com/rebuy-de/aws-nuke/v2/resources"
 )
 
+// ItemState int
 type ItemState int
 
 // States of Items based on the latest request to AWS.
@@ -30,6 +31,7 @@ type Item struct {
 	Type   string
 }
 
+// Print item function
 func (i *Item) Print() {
 	switch i.State {
 	case ItemStateNew:
@@ -57,6 +59,7 @@ func (i *Item) List() ([]resources.Resource, error) {
 	return lister(sess)
 }
 
+// GetProperty function
 func (i *Item) GetProperty(key string) (string, error) {
 	if key == "" {
 		stringer, ok := i.Resource.(resources.LegacyStringer)
@@ -74,6 +77,7 @@ func (i *Item) GetProperty(key string) (string, error) {
 	return getter.Properties().Get(key), nil
 }
 
+// Equals function
 func (i *Item) Equals(o resources.Resource) bool {
 	iType := fmt.Sprintf("%T", i.Resource)
 	oType := fmt.Sprintf("%T", o)
@@ -102,12 +106,15 @@ func (i *Item) Equals(o resources.Resource) bool {
 	return false
 }
 
+// Queue type
 type Queue []*Item
 
+// CountTotal function
 func (q Queue) CountTotal() int {
 	return len(q)
 }
 
+// Count function
 func (q Queue) Count(states ...ItemState) int {
 	count := 0
 	for _, item := range q {

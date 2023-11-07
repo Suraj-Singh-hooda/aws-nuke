@@ -14,6 +14,7 @@ import (
 
 const ScannerParallelQueries = 16
 
+// Scan function
 func Scan(region *Region, resourceTypes []string) <-chan *Item {
 	s := &scanner{
 		items:     make(chan *Item, 100),
@@ -24,11 +25,13 @@ func Scan(region *Region, resourceTypes []string) <-chan *Item {
 	return s.items
 }
 
+// scanner struct
 type scanner struct {
 	items     chan *Item
 	semaphore *semaphore.Weighted
 }
 
+// run function
 func (s *scanner) run(region *Region, resourceTypes []string) {
 	ctx := context.Background()
 
