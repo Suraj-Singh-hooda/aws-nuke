@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// NukeParameters struct
 type NukeParameters struct {
 	ConfigPath string
 
@@ -20,6 +21,7 @@ type NukeParameters struct {
 	MaxWaitRetries int
 }
 
+// Validate nuke params
 func (p *NukeParameters) Validate() error {
 	if strings.TrimSpace(p.ConfigPath) == "" {
 		return fmt.Errorf("You have to specify the --config flag.\n")

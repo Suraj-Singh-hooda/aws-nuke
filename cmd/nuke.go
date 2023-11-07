@@ -32,7 +32,7 @@ func NewNuke(params NukeParameters, account awsutil.Account) *Nuke {
 	return &n
 }
 
-// Nuke.Run method
+// Run nuke function
 func (n *Nuke) Run() error {
 	var err error
 
@@ -137,7 +137,7 @@ func (n *Nuke) Run() error {
 	return nil
 }
 
-// Nuke.Scan function
+// Scan nuke function
 func (n *Nuke) Scan() error {
 	accountConfig := n.Config.Accounts[n.Account.ID()]
 
@@ -193,7 +193,7 @@ func (n *Nuke) Scan() error {
 	return nil
 }
 
-// Nuke.Filter function
+// Filter nuke function
 func (n *Nuke) Filter(item *Item) error {
 
 	checker, ok := item.Resource.(resources.Filter)
@@ -245,7 +245,7 @@ func (n *Nuke) Filter(item *Item) error {
 	return nil
 }
 
-// Nuke.HandleQueue function
+// HandleQueue nuke function
 func (n *Nuke) HandleQueue() {
 	listCache := make(map[string]map[string][]resources.Resource)
 
@@ -275,6 +275,7 @@ func (n *Nuke) HandleQueue() {
 		n.items.Count(ItemStateFiltered), n.items.Count(ItemStateFinished))
 }
 
+// HandleRemove nuke function
 func (n *Nuke) HandleRemove(item *Item) {
 	err := item.Resource.Remove()
 	if err != nil {
@@ -287,6 +288,7 @@ func (n *Nuke) HandleRemove(item *Item) {
 	item.Reason = ""
 }
 
+// HandleWait nuke function
 func (n *Nuke) HandleWait(item *Item, cache map[string]map[string][]resources.Resource) {
 	var err error
 	region := item.Region.Name
