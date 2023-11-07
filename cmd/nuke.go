@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Nuke struct
 type Nuke struct {
 	Parameters NukeParameters
 	Account    awsutil.Account
@@ -21,6 +22,7 @@ type Nuke struct {
 	items Queue
 }
 
+// NewNuke func
 func NewNuke(params NukeParameters, account awsutil.Account) *Nuke {
 	n := Nuke{
 		Parameters: params,
@@ -30,6 +32,7 @@ func NewNuke(params NukeParameters, account awsutil.Account) *Nuke {
 	return &n
 }
 
+// Nuke.Run method
 func (n *Nuke) Run() error {
 	var err error
 
@@ -134,6 +137,7 @@ func (n *Nuke) Run() error {
 	return nil
 }
 
+// Nuke.Scan function
 func (n *Nuke) Scan() error {
 	accountConfig := n.Config.Accounts[n.Account.ID()]
 
@@ -189,6 +193,7 @@ func (n *Nuke) Scan() error {
 	return nil
 }
 
+// Nuke.Filter function
 func (n *Nuke) Filter(item *Item) error {
 
 	checker, ok := item.Resource.(resources.Filter)
