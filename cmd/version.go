@@ -8,12 +8,13 @@ import (
 )
 
 var (
-	BuildVersion     = "unknown"
-	BuildDate        = "unknown"
-	BuildHash        = "unknown"
-	BuildEnvironment = "unknown"
+	BuildVersion     = "unknown" //BuildVersion
+	BuildDate        = "unknown" //BuildDate
+	BuildHash        = "unknown" //BuildHash
+	BuildEnvironment = "unknown" //BuildEnvironment
 )
 
+// NewVersionCommand function
 func NewVersionCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",

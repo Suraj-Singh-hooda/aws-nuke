@@ -118,7 +118,7 @@ func (n *Nuke) Run() error {
 		}
 		if n.Parameters.MaxWaitRetries != 0 && n.items.Count(ItemStateWaiting, ItemStatePending) > 0 && n.items.Count(ItemStateNew) == 0 {
 			if waitingCount >= n.Parameters.MaxWaitRetries {
-				return fmt.Errorf("max wait retries of %d exceeded.\n\n", n.Parameters.MaxWaitRetries)
+				return fmt.Errorf("max wait retries of %d exceeded", n.Parameters.MaxWaitRetries)
 			}
 			waitingCount = waitingCount + 1
 		} else {

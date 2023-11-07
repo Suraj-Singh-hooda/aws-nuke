@@ -12,6 +12,7 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
+// ScannerParallelQueries const
 const ScannerParallelQueries = 16
 
 // Scan function

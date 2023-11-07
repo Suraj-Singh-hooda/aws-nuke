@@ -9,6 +9,7 @@ import (
 	"github.com/rebuy-de/aws-nuke/v2/pkg/config"
 )
 
+// Account struct
 type Account struct {
 	Credentials
 
@@ -16,6 +17,7 @@ type Account struct {
 	aliases []string
 }
 
+// NewAccount function
 func NewAccount(creds Credentials, endpoints config.CustomEndpoints) (*Account, error) {
 	creds.CustomEndpoints = endpoints
 	account := Account{
@@ -69,18 +71,22 @@ func NewAccount(creds Credentials, endpoints config.CustomEndpoints) (*Account, 
 	return &account, nil
 }
 
+// ID function
 func (a *Account) ID() string {
 	return a.id
 }
 
+// Alias function
 func (a *Account) Alias() string {
 	return a.aliases[0]
 }
 
+// Aliases function
 func (a *Account) Aliases() []string {
 	return a.aliases
 }
 
+// ResourceTypeToServiceType function
 func (a *Account) ResourceTypeToServiceType(regionName, resourceType string) string {
 	customRegion := a.CustomEndpoints.GetRegion(regionName)
 	if customRegion == nil {

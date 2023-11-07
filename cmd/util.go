@@ -9,6 +9,7 @@ import (
 	"github.com/rebuy-de/aws-nuke/v2/pkg/types"
 )
 
+// Prompt function
 func Prompt(expect string) error {
 	fmt.Print("> ")
 	reader := bufio.NewReader(os.Stdin)
@@ -25,6 +26,7 @@ func Prompt(expect string) error {
 	return nil
 }
 
+// ResolveResourceTypes function
 func ResolveResourceTypes(
 	base types.Collection, mapping map[string]string,
 	include, exclude, cloudControl []types.Collection) types.Collection {
@@ -55,6 +57,7 @@ func ResolveResourceTypes(
 	return base
 }
 
+// IsTrue true function
 func IsTrue(s string) bool {
 	return strings.TrimSpace(strings.ToLower(s)) == "true"
 }

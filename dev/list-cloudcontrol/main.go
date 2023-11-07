@@ -15,6 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// CFTypeSchema struct
 type CFTypeSchema struct {
 	Handlers map[string]interface{} `json:"handlers"`
 }
