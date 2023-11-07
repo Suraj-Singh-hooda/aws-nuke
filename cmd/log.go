@@ -26,10 +26,10 @@ var (
 	ColorResourceProperties = *color.New(color.Italic)
 )
 
+// Sorted order ready for printing.
 // Format the resource properties in Sorted order ready for printing.
 // This ensures that multiple runs of aws-nuke produce stable output so
 // that they can be compared with each other.
-// Sorted order ready for printing.
 func Sorted(m map[string]string) string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
