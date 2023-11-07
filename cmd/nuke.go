@@ -245,6 +245,7 @@ func (n *Nuke) Filter(item *Item) error {
 	return nil
 }
 
+// Nuke.HandleQueue function
 func (n *Nuke) HandleQueue() {
 	listCache := make(map[string]map[string][]resources.Resource)
 
