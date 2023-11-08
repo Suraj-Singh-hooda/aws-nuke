@@ -53,7 +53,7 @@ func TestUnmarshalFilter(t *testing.T) {
 				future.Format("2006-01-02"),
 				future.Format("2006/01/02"),
 				future.Format("2006-01-02T15:04:05Z"),
-				future.Format("2006-01-02 23:00:00 UTC"),
+				future.Format("2006-01-02 15:04:05 UTC"),
 				future.Format(time.RFC3339Nano),
 				future.Format(time.RFC3339),
 			},
