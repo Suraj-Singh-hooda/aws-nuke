@@ -30,6 +30,7 @@ var (
 	DefaultAWSPartitionID = endpoints.AwsPartitionID
 )
 
+// Credentials struct
 type Credentials struct {
 	Profile string
 
@@ -44,20 +45,24 @@ type Credentials struct {
 	session         *session.Session
 }
 
+// HasProfile function
 func (c *Credentials) HasProfile() bool {
 	return strings.TrimSpace(c.Profile) != ""
 }
 
+// HasAwsCredentials function
 func (c *Credentials) HasAwsCredentials() bool {
 	return c.Credentials != nil
 }
 
+// HasKeys func
 func (c *Credentials) HasKeys() bool {
 	return strings.TrimSpace(c.AccessKeyID) != "" ||
 		strings.TrimSpace(c.SecretAccessKey) != "" ||
 		strings.TrimSpace(c.SessionToken) != ""
 }
 
+// Validate
 func (c *Credentials) Validate() error {
 	if c.HasProfile() && c.HasKeys() {
 		return fmt.Errorf("You have to specify either the --profile flag or " +
@@ -68,6 +73,7 @@ func (c *Credentials) Validate() error {
 	return nil
 }
 
+// rootSession
 func (c *Credentials) rootSession() (*session.Session, error) {
 	if c.session == nil {
 		var opts session.Options
@@ -123,6 +129,7 @@ func (c *Credentials) rootSession() (*session.Session, error) {
 	return c.session, nil
 }
 
+// awsNewStaticCredentials
 func (c *Credentials) awsNewStaticCredentials() *credentials.Credentials {
 	if !c.HasKeys() {
 		return credentials.NewEnvCredentials()
@@ -134,6 +141,7 @@ func (c *Credentials) awsNewStaticCredentials() *credentials.Credentials {
 	)
 }
 
+// NewSession
 func (c *Credentials) NewSession(region, serviceType string) (*session.Session, error) {
 	log.Debugf("creating new session in %s for %s", region, serviceType)
 
@@ -199,6 +207,7 @@ func (c *Credentials) NewSession(region, serviceType string) (*session.Session, 
 	return sess, nil
 }
 
+// skipMissingServiceInRegionHandler
 func skipMissingServiceInRegionHandler(r *request.Request) {
 	region := *r.Config.Region
 	service := r.ClientInfo.ServiceName
@@ -222,6 +231,7 @@ func skipMissingServiceInRegionHandler(r *request.Request) {
 	}
 }
 
+// skipGlobalHandler
 func skipGlobalHandler(global bool) func(r *request.Request) {
 	return func(r *request.Request) {
 		service := r.ClientInfo.ServiceName

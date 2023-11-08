@@ -8,10 +8,14 @@ import (
 )
 
 var (
-	BuildVersion     = "unknown" //BuildVersion
-	BuildDate        = "unknown" //BuildDate
-	BuildHash        = "unknown" //BuildHash
-	BuildEnvironment = "unknown" //BuildEnvironment
+	//BuildVersion
+	BuildVersion = "unknown"
+	//BuildDate
+	BuildDate = "unknown"
+	//BuildHash
+	BuildHash = "unknown"
+	//BuildEnvironment
+	BuildEnvironment = "unknown"
 )
 
 // NewVersionCommand function
