@@ -65,18 +65,10 @@ procedures.
 We usually release a new version once enough changes came together and have
 been tested for a while.
 
-<<<<<<< HEAD
-You can find Linux, macOS and Windows binaries on the
-[releases page](https://github.com/rebuy-de/aws-nuke/releases), but we also
-provide containerized versions on [quay.io/rebuy/aws-nuke](https://quay.io/rebuy/aws-nuke)
-and [docker.io/rebuy/aws-nuke](https://hub.docker.com/r/rebuy/aws-nuke). Both
-are available for multiple architectures (amd64, arm64 & armv7).
-=======
 You can find Linux and macOS binaries on the
 [releases page](https://github.com/rebuy-de/aws-nuke/releases), but we also
 provide containerized versions on [quay.io/rebuy/aws-nuke](https://quay.io/rebuy/aws-nuke)
 and [docker.io/rebuy/aws-nuke](https://hub.docker.com/r/rebuy/aws-nuke) (mirror).
->>>>>>> master
 
 
 ## Usage
