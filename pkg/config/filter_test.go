@@ -47,13 +47,13 @@ func TestUnmarshalFilter(t *testing.T) {
 			mismatch: []string{"bim-baz"},
 		},
 		{
-			//	yaml: `{"type":"dateOlderThan","value":"0"}`,
+			yaml: `{"type":"dateOlderThan","value":"0"}`,
 			match: []string{
 				strconv.Itoa(int(future.Unix())),
 				future.Format("2006-01-02"),
 				future.Format("2006/01/02"),
 				future.Format("2006-01-02T15:04:05Z"),
-				//future.Format("2006-01-02 15:04:05.000 +0000 UTC"),
+				future.Format("2006-01-02 15:04:05.000 +0000 UTC"),
 				future.Format(time.RFC3339Nano),
 				future.Format(time.RFC3339),
 			},
