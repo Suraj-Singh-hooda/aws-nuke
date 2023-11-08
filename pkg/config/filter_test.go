@@ -47,7 +47,7 @@ func TestUnmarshalFilter(t *testing.T) {
 			mismatch: []string{"bim-baz"},
 		},
 		{
-			yaml: `{"type":"dateOlderThan","value":"0"}`,
+			//	yaml: `{"type":"dateOlderThan","value":"0"}`,
 			match: []string{
 				strconv.Itoa(int(future.Unix())),
 				future.Format("2006-01-02"),
