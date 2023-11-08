@@ -7,6 +7,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// BuildVersion
+// BuildDate
+// BuildHash
+// BuildEnvironment
 var (
 	//BuildVersion
 	BuildVersion = "unknown"

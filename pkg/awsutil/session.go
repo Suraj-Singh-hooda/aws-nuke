@@ -18,6 +18,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// GlobalRegionID
 const (
 	GlobalRegionID = "global"
 )
@@ -62,7 +63,7 @@ func (c *Credentials) HasKeys() bool {
 		strings.TrimSpace(c.SessionToken) != ""
 }
 
-// Validate
+// Validate function
 func (c *Credentials) Validate() error {
 	if c.HasProfile() && c.HasKeys() {
 		return fmt.Errorf("You have to specify either the --profile flag or " +
@@ -89,7 +90,7 @@ func (c *Credentials) rootSession() (*session.Session, error) {
 				},
 			}
 		case c.HasProfile() && c.HasKeys():
-			return nil, fmt.Errorf("You have to specify a profile or credentials for at least one region.")
+			return nil, fmt.Errorf("you have to specify a profile or credentials for at least one region")
 
 		case c.HasKeys():
 			opts = session.Options{
@@ -141,7 +142,7 @@ func (c *Credentials) awsNewStaticCredentials() *credentials.Credentials {
 	)
 }
 
-// NewSession
+// NewSession function
 func (c *Credentials) NewSession(region, serviceType string) (*session.Session, error) {
 	log.Debugf("creating new session in %s for %s", region, serviceType)
 
