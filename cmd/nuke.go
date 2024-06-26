@@ -272,7 +272,7 @@ func (n *Nuke) HandleQueue() {
 func (n *Nuke) HandleRemove(item *Item) {
 	err := item.Resource.Remove()
 	if err != nil && err.Error() == "ignoring error" {
-		item.State = ItemStateIgnored
+		item.State = ItemStateFinished
 		item.Reason = ""
 		return
 	} else if err != nil {
