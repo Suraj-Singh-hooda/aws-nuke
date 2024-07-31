@@ -33,6 +33,7 @@ type Nuke struct {
 	ResourceTypes    ResourceTypes                `yaml:"resource-types"`
 	Presets          map[string]PresetDefinitions `yaml:"presets"`
 	FeatureFlags     FeatureFlags                 `yaml:"feature-flags"`
+	Settings         Settings                     `yaml:"settings"`
 	CustomEndpoints  CustomEndpoints              `yaml:"endpoints"`
 }
 
@@ -43,10 +44,23 @@ type FeatureFlags struct {
 	DisableFailOnKMSError            bool                      `yaml:"disable-fail-on-kms-error"`
 }
 
+type Settings struct {
+	CloudFormationStack CloudFormationStackSettings `yaml:"CloudFormationStack"`
+}
+
+type ResourceSettings struct {
+	DisableDeletionProtection bool `yaml:"DisableDeletionProtection"`
+}
+
+type CloudFormationStackSettings struct {
+	ResourceSettings `yaml:",inline"`
+	ServiceRoleArn   string `yaml:"ServiceRoleArn"`
+}
+
 type DisableDeletionProtection struct {
 	RDSInstance         bool `yaml:"RDSInstance"`
 	EC2Instance         bool `yaml:"EC2Instance"`
-	CloudformationStack bool `yaml:"CloudformationStack"`
+	CloudFormationStack bool `yaml:"CloudFormationStack"`
 	ELBv2               bool `yaml:"ELBv2"`
 	QLDBLedger          bool `yaml:"QLDBLedger"`
 	DynamoDBTable       bool `yaml:"DynamoDBTable"`

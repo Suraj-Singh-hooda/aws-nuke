@@ -41,6 +41,11 @@ type FeatureFlagGetter interface {
 	FeatureFlags(config.FeatureFlags)
 }
 
+type SettingsGetter interface {
+	Resource
+	Settings(config.Settings)
+}
+
 var resourceListers = make(ResourceListers)
 var resourceListersV2 = make(ResourceListersV2)
 

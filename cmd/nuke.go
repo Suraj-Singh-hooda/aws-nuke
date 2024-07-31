@@ -173,6 +173,11 @@ func (n *Nuke) Scan() error {
 				ffGetter.FeatureFlags(n.Config.FeatureFlags)
 			}
 
+			settingsGetter, ok := item.Resource.(resources.SettingsGetter)
+			if ok {
+				settingsGetter.Settings(n.Config.Settings)
+			}
+
 			queue = append(queue, item)
 			err := n.Filter(item)
 			if err != nil {
