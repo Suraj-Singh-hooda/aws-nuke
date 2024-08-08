@@ -1,50 +1,55 @@
 package resources
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/waf"
-	"github.com/aws/aws-sdk-go/service/wafregional"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/wafregional"
+	wafregionalTypes "github.com/aws/aws-sdk-go-v2/service/wafregional/types"
 	"github.com/rebuy-de/aws-nuke/v2/pkg/types"
 )
 
 type WAFRegionalRule struct {
-	svc  *wafregional.WAFRegional
+	svc     *wafregional.Client
+	context context.Context
+
 	ID   *string
 	name *string
-	rule *waf.Rule
+	rule *wafregionalTypes.Rule
 }
 
 func init() {
-	register("WAFRegionalRule", ListWAFRegionalRules)
+	registerV2("WAFRegionalRule", ListWAFRegionalRules)
 }
 
-func ListWAFRegionalRules(sess *session.Session) ([]Resource, error) {
-	svc := wafregional.New(sess)
+func ListWAFRegionalRules(cfg *aws.Config) ([]Resource, error) {
+	svc := wafregional.NewFromConfig(*cfg)
+	ctx := context.TODO()
 	resources := []Resource{}
 
-	params := &waf.ListRulesInput{
-		Limit: aws.Int64(50),
+	params := &wafregional.ListRulesInput{
+		Limit: 50,
 	}
 
 	for {
-		resp, err := svc.ListRules(params)
+		resp, err := svc.ListRules(ctx, params)
 		if err != nil {
 			return nil, err
 		}
 
 		for _, rule := range resp.Rules {
-			ruleResp, err := svc.GetRule(&waf.GetRuleInput{
+			ruleResp, err := svc.GetRule(ctx, &wafregional.GetRuleInput{
 				RuleId: rule.RuleId,
 			})
 			if err != nil {
 				return nil, err
 			}
 			resources = append(resources, &WAFRegionalRule{
-				svc:  svc,
-				ID:   rule.RuleId,
-				name: rule.Name,
-				rule: ruleResp.Rule,
+				svc:     svc,
+				context: ctx,
+				ID:      rule.RuleId,
+				name:    rule.Name,
+				rule:    ruleResp.Rule,
 			})
 		}
 
@@ -60,35 +65,37 @@ func ListWAFRegionalRules(sess *session.Session) ([]Resource, error) {
 
 func (f *WAFRegionalRule) Remove() error {
 
-	tokenOutput, err := f.svc.GetChangeToken(&waf.GetChangeTokenInput{})
+	tokenOutput, err := f.svc.GetChangeToken(f.context, &wafregional.GetChangeTokenInput{})
 	if err != nil {
 		return err
 	}
 
-	ruleUpdates := []*waf.RuleUpdate{}
+	ruleUpdates := []wafregionalTypes.RuleUpdate{}
 	for _, predicate := range f.rule.Predicates {
-		ruleUpdates = append(ruleUpdates, &waf.RuleUpdate{
-			Action:    aws.String(waf.ChangeActionDelete),
-			Predicate: predicate,
+		ruleUpdates = append(ruleUpdates, wafregionalTypes.RuleUpdate{
+			Action:    wafregionalTypes.ChangeActionDelete,
+			Predicate: &predicate,
 		})
 	}
 
-	_, err = f.svc.UpdateRule(&waf.UpdateRuleInput{
-		ChangeToken: tokenOutput.ChangeToken,
-		RuleId:      f.ID,
-		Updates:     ruleUpdates,
-	})
+	if len(ruleUpdates) > 0 {
+		_, err = f.svc.UpdateRule(f.context, &wafregional.UpdateRuleInput{
+			ChangeToken: tokenOutput.ChangeToken,
+			RuleId:      f.ID,
+			Updates:     ruleUpdates,
+		})
 
+		if err != nil {
+			return err
+		}
+	}
+
+	tokenOutput, err = f.svc.GetChangeToken(f.context, &wafregional.GetChangeTokenInput{})
 	if err != nil {
 		return err
 	}
 
-	tokenOutput, err = f.svc.GetChangeToken(&waf.GetChangeTokenInput{})
-	if err != nil {
-		return err
-	}
-
-	_, err = f.svc.DeleteRule(&waf.DeleteRuleInput{
+	_, err = f.svc.DeleteRule(f.context, &wafregional.DeleteRuleInput{
 		RuleId:      f.ID,
 		ChangeToken: tokenOutput.ChangeToken,
 	})

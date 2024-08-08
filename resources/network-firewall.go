@@ -11,7 +11,8 @@ import (
 )
 
 type NetworkFirewall struct {
-	svc *networkfirewall.Client
+	svc     *networkfirewall.Client
+	context context.Context
 
 	firewall  networkfirwallTypes.FirewallMetadata
 	logConfig *networkfirwallTypes.LoggingConfiguration
@@ -69,6 +70,7 @@ func ListNetworkFirewalls(cfg *aws.Config) ([]Resource, error) {
 
 			resources = append(resources, &NetworkFirewall{
 				svc:       svc,
+				context:   ctx,
 				firewall:  firewall,
 				logConfig: logResp.LoggingConfiguration,
 				tags:      tags,
@@ -84,12 +86,10 @@ func ListNetworkFirewalls(cfg *aws.Config) ([]Resource, error) {
 }
 
 func (i *NetworkFirewall) Remove() error {
-	ctx := context.TODO()
-
 	if i.logConfig != nil {
 		for index := 1; index <= len(i.logConfig.LogDestinationConfigs); index++ {
 			// aws forces to only remove one at a time
-			_, err := i.svc.UpdateLoggingConfiguration(ctx, &networkfirewall.UpdateLoggingConfigurationInput{
+			_, err := i.svc.UpdateLoggingConfiguration(i.context, &networkfirewall.UpdateLoggingConfigurationInput{
 				FirewallArn: i.firewall.FirewallArn,
 				LoggingConfiguration: &networkfirwallTypes.LoggingConfiguration{
 					LogDestinationConfigs: i.logConfig.LogDestinationConfigs[index:],
@@ -105,7 +105,7 @@ func (i *NetworkFirewall) Remove() error {
 		FirewallArn: i.firewall.FirewallArn,
 	}
 
-	_, err := i.svc.DeleteFirewall(ctx, params)
+	_, err := i.svc.DeleteFirewall(i.context, params)
 	if err != nil {
 		return err
 	}

@@ -2,6 +2,7 @@ package resources
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -57,11 +58,15 @@ type CloudFormationStack struct {
 	svc               cloudformationiface.CloudFormationAPI
 	stack             *cloudformation.Stack
 	maxDeleteAttempts int
-	featureFlags      config.FeatureFlags
+	settings          config.Settings
 }
 
-func (cfs *CloudFormationStack) FeatureFlags(ff config.FeatureFlags) {
-	cfs.featureFlags = ff
+func (cfs *CloudFormationStack) Settings(settings config.Settings) {
+	cfs.settings = settings
+
+	if cfs.settings.CloudFormationStack.ServiceRoleArn != "" {
+		fmt.Printf("ServiceRoleArn: %s\n", cfs.settings.CloudFormationStack.ServiceRoleArn)
+	}
 }
 
 func (cfs *CloudFormationStack) Remove() error {
@@ -74,7 +79,7 @@ func (cfs *CloudFormationStack) removeWithAttempts(attempt int) error {
 		awsErr, ok := err.(awserr.Error)
 		if ok && awsErr.Code() == "ValidationError" &&
 			awsErr.Message() == "Stack ["+*cfs.stack.StackName+"] cannot be deleted while TerminationProtection is enabled" {
-			if cfs.featureFlags.DisableDeletionProtection.CloudformationStack {
+			if cfs.settings.CloudFormationStack.DisableDeletionProtection {
 				logrus.Infof("CloudFormationStack stackName=%s attempt=%d maxAttempts=%d updating termination protection", *cfs.stack.StackName, attempt, cfs.maxDeleteAttempts)
 				_, err = cfs.svc.UpdateTerminationProtection(&cloudformation.UpdateTerminationProtectionInput{
 					EnableTerminationProtection: aws.Bool(false),
@@ -89,7 +94,7 @@ func (cfs *CloudFormationStack) removeWithAttempts(attempt int) error {
 			}
 		}
 		if attempt >= cfs.maxDeleteAttempts {
-			return errors.New("CFS might not be deleted after this run.")
+			return errors.New("CFS might not be deleted after this run")
 		} else {
 			return cfs.removeWithAttempts(attempt + 1)
 		}
@@ -140,9 +145,14 @@ func (cfs *CloudFormationStack) doRemove() error {
 			}
 		}
 
+		var roleArn *string
+		if cfs.settings.CloudFormationStack.ServiceRoleArn != "" {
+			roleArn = aws.String(cfs.settings.CloudFormationStack.ServiceRoleArn)
+		}
 		_, err = cfs.svc.DeleteStack(&cloudformation.DeleteStackInput{
 			StackName:       cfs.stack.StackName,
 			RetainResources: retain,
+			RoleARN:         roleArn,
 		})
 		if err != nil {
 			return err
@@ -151,10 +161,16 @@ func (cfs *CloudFormationStack) doRemove() error {
 			StackName: cfs.stack.StackName,
 		})
 	} else {
+		var roleArn *string
+		if cfs.settings.CloudFormationStack.ServiceRoleArn != "" {
+			roleArn = aws.String(cfs.settings.CloudFormationStack.ServiceRoleArn)
+		}
+
 		if err := cfs.waitForStackToStabilize(*stack.StackStatus); err != nil {
 			return err
 		} else if _, err := cfs.svc.DeleteStack(&cloudformation.DeleteStackInput{
 			StackName: cfs.stack.StackName,
+			RoleARN:   roleArn,
 		}); err != nil {
 			return err
 		} else if err := cfs.svc.WaitUntilStackDeleteComplete(&cloudformation.DescribeStacksInput{

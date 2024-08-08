@@ -1,27 +1,33 @@
 package resources
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/kafka"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/kafka"
+
 	"github.com/rebuy-de/aws-nuke/v2/pkg/types"
 )
 
 type MSKCluster struct {
-	svc  *kafka.Kafka
+	svc     *kafka.Client
+	context context.Context
+
 	arn  string
 	name string
-	tags map[string]*string
+	tags map[string]string
 }
 
 func init() {
-	register("MSKCluster", ListMSKCluster)
+	registerV2("MSKCluster", ListMSKCluster)
 }
 
-func ListMSKCluster(sess *session.Session) ([]Resource, error) {
-	svc := kafka.New(sess)
-	params := &kafka.ListClustersInput{}
-	resp, err := svc.ListClusters(params)
+func ListMSKCluster(cfg *aws.Config) ([]Resource, error) {
+	svc := kafka.NewFromConfig(*cfg)
+	ctx := context.TODO()
+
+	params := &kafka.ListClustersV2Input{}
+	resp, err := svc.ListClustersV2(ctx, params)
 
 	if err != nil {
 		return nil, err
@@ -29,10 +35,11 @@ func ListMSKCluster(sess *session.Session) ([]Resource, error) {
 	resources := make([]Resource, 0)
 	for _, cluster := range resp.ClusterInfoList {
 		resources = append(resources, &MSKCluster{
-			svc:  svc,
-			arn:  *cluster.ClusterArn,
-			name: *cluster.ClusterName,
-			tags: cluster.Tags,
+			svc:     svc,
+			context: ctx,
+			arn:     *cluster.ClusterArn,
+			name:    *cluster.ClusterName,
+			tags:    cluster.Tags,
 		})
 
 	}
@@ -44,7 +51,7 @@ func (m *MSKCluster) Remove() error {
 		ClusterArn: &m.arn,
 	}
 
-	_, err := m.svc.DeleteCluster(params)
+	_, err := m.svc.DeleteCluster(m.context, params)
 	if err != nil {
 		return err
 	}
